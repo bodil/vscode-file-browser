@@ -1,0 +1,93 @@
+{
+    "name": "file-browser",
+    "publisher": "bodil",
+    "displayName": "File Browser",
+    "description": "A nicer alternative to the file open dialog.",
+    "version": "0.1.0",
+    "license": "LGPL-3.0+",
+    "author": {
+        "name": "Bodil Stokke",
+        "url": "https://bodil.lol/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bodil/vscode-file-browser"
+    },
+    "keywords": [
+        "emacs",
+        "helm"
+    ],
+    "engines": {
+        "vscode": "^1.46.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:file-browser.open"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "file-browser.open",
+                "title": "File Browser: Open"
+            },
+            {
+                "command": "file-browser.stepIn",
+                "title": "File Browser: Step In"
+            },
+            {
+                "command": "file-browser.stepOut",
+                "title": "File Browser: Step Out"
+            }
+        ],
+        "configuration": {
+            "title": "File Browser",
+            "properties": {
+                "file-browser.isActive": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Do not modify this. The extension uses it to enable its keybindings when active."
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "key": "right",
+                "command": "file-browser.stepIn",
+                "when": "inQuickOpen && config.file-browser.isActive"
+            },
+            {
+                "key": "left",
+                "command": "file-browser.stepOut",
+                "when": "inQuickOpen && config.file-browser.isActive"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "lint": "eslint src --ext ts",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.2",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^14.0.13",
+        "@types/vscode": "^1.46.0",
+        "eslint": "^7.3.0",
+        "@typescript-eslint/parser": "^3.3.0",
+        "@typescript-eslint/eslint-plugin": "^3.3.0",
+        "glob": "^7.1.6",
+        "mocha": "^8.0.1",
+        "typescript": "^3.9.5",
+        "vscode-test": "^1.4.0"
+    },
+    "dependencies": {
+        "@types/user-home": "^2.0.0",
+        "user-home": "^2.0.0"
+    }
+}
