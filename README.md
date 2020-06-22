@@ -3,7 +3,7 @@
 An integrated file browser for VS Code, inspired by Emacs's
 [Helm](https://emacs-helm.github.io/helm/) file selector.
 
-![screenshot](images/screenshot.png)
+![screenshot](images/file-browser.gif)
 
 ## Features
 
