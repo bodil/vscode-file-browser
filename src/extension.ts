@@ -80,16 +80,8 @@ class FileBrowser {
     stepOutButton: QuickInputButton;
 
     constructor(filePath: string) {
-        console.log("Opening file browser:", filePath);
-        let path = splitPath(filePath);
-        let file = path.pop();
-        if (file) {
-            this.file = file;
-            this.path = path;
-        } else {
-            this.path = splitPath(vscode.workspace.rootPath || "");
-            this.file = undefined;
-        }
+        this.path = splitPath(filePath);
+        this.file = this.path.pop();
         this.items = [];
         this.pathHistory = { [joinPath(this.path)]: this.file };
         this.stepOutButton = {
@@ -204,7 +196,6 @@ class FileBrowser {
     onDidAccept() {
         const item = this.activeItem();
         if (item !== undefined) {
-            // TODO maybe add an option for opening a folder as an editor instead of stepping in?
             if (
                 item.fileType !== undefined &&
                 (item.fileType & FileType.Directory) === FileType.Directory
@@ -232,7 +223,12 @@ export function activate(context: vscode.ExtensionContext) {
     setContext(false);
 
     const open = vscode.commands.registerCommand("file-browser.open", async () => {
-        const pick = new FileBrowser(vscode.window.activeTextEditor?.document.fileName || "");
+        const document = vscode.window.activeTextEditor?.document;
+        let path = (vscode.workspace.rootPath || userHome) + Path.sep;
+        if (document && !document.isUntitled) {
+            path = document.fileName;
+        }
+        const pick = new FileBrowser(path);
         await setContext(true);
         active = pick;
     });
@@ -250,8 +246,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
     context.subscriptions.push(stepOutCmd);
-
-    console.log("******* FILEBROWSER: ", vscode.workspace.fs.stat(Uri.file("~")));
 }
 
 export function deactivate() {}
