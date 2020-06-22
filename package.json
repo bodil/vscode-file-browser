@@ -42,26 +42,16 @@
                 "title": "File Browser: Step Out"
             }
         ],
-        "configuration": {
-            "title": "File Browser",
-            "properties": {
-                "file-browser.isActive": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Do not modify this. The extension uses it to enable its keybindings when active."
-                }
-            }
-        },
         "keybindings": [
             {
                 "key": "right",
                 "command": "file-browser.stepIn",
-                "when": "inQuickOpen && config.file-browser.isActive"
+                "when": "inFileBrowser"
             },
             {
                 "key": "left",
                 "command": "file-browser.stepOut",
-                "when": "inQuickOpen && config.file-browser.isActive"
+                "when": "inFileBrowser"
             }
         ]
     },

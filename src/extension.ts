@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Uri, QuickPickItem, FileType, ConfigurationTarget, QuickInputButton } from "vscode";
+import { Uri, QuickPickItem, FileType, QuickInputButton } from "vscode";
 import * as userHome from "user-home";
 import * as Path from "path";
 
@@ -10,9 +10,8 @@ enum Action {
     NewFolder,
 }
 
-async function writeConfig(state: boolean | undefined) {
-    const config = vscode.workspace.getConfiguration("file-browser");
-    await config.update("isActive", state, ConfigurationTarget.Global);
+async function setContext(state: boolean) {
+    vscode.commands.executeCommand("setContext", "inFileBrowser", state);
 }
 
 function splitPath(path: string): string[] {
@@ -104,7 +103,7 @@ class FileBrowser {
         this.current = vscode.window.createQuickPick();
         this.current.buttons = [this.stepOutButton, this.stepInButton];
         this.current.placeholder = "Type a file name here to search or open a new file";
-        this.current.onDidHide(() => this.dispose.bind(this));
+        this.current.onDidHide(this.dispose.bind(this));
         this.current.onDidAccept(this.onDidAccept.bind(this));
         this.current.onDidChangeValue(this.onDidChangeValue.bind(this));
         this.current.onDidTriggerButton(this.onDidTriggerButton.bind(this));
@@ -112,8 +111,8 @@ class FileBrowser {
     }
 
     dispose() {
+        setContext(false);
         this.current.dispose();
-        writeConfig(undefined);
         active = undefined;
     }
 
@@ -230,11 +229,11 @@ class FileBrowser {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    writeConfig(undefined);
+    setContext(false);
 
     const open = vscode.commands.registerCommand("file-browser.open", async () => {
         const pick = new FileBrowser(vscode.window.activeTextEditor?.document.fileName || "");
-        await writeConfig(true);
+        await setContext(true);
         active = pick;
     });
     context.subscriptions.push(open);

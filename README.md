@@ -17,12 +17,6 @@ This is what this extension gives you:
 -   Easy navigation in and out of folders by using the left and right arrow keys.
 -   Navigate to your home folder by typing `~/` into the search box.
 
-## Extension Settings
-
-Be aware that the extension includes a setting `file-browser.isActive`, which exists only to be used
-as a filter in keybindings' `when` clause, and will be set to `true` by the extension when it's
-active, and removed otherwise. You should never set this to any value in your configuration.
-
 ## Licence
 
 Copyright 2020 Bodil Stokke
