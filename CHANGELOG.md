@@ -5,6 +5,12 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.0]
+
+### ADDED
+
+-   You can now step into a file to access file operations such as rename and delete.
+
 ## [0.1.1] - 2020-06-22
 
 ### FIXED
