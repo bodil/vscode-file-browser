@@ -276,16 +276,22 @@ class FileBrowser {
                 this.dispose();
                 const uri = Uri.file(joinPath(this.path));
                 const fileName = this.path.pop() || "";
-                const extension = Path.extname(fileName);
-                const endSelection = fileName.length - extension.length;
+                const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri;
+                const relPath = workspaceFolder
+                    ? Path.relative(workspaceFolder.path, uri.path)
+                    : uri.path;
+                const extension = Path.extname(relPath);
+                const startSelection = relPath.length - fileName.length;
+                const endSelection = startSelection + (fileName.length - extension.length);
                 const result = await vscode.window.showInputBox({
                     prompt: "Enter the new file name",
-                    value: fileName,
-                    valueSelection: [0, endSelection],
+                    value: relPath,
+                    valueSelection: [startSelection, endSelection],
                 });
                 if (result !== undefined) {
-                    this.path.push(result);
-                    const newUri = Uri.file(joinPath(this.path));
+                    const newUri = workspaceFolder
+                        ? Uri.joinPath(workspaceFolder, result)
+                        : Uri.file(result);
                     try {
                         await vscode.workspace.fs.rename(uri, newUri);
                     } catch (err) {
