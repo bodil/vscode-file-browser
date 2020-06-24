@@ -1,6 +1,6 @@
 # File Browser
 
-An integrated file browser for VS Code, inspired by Emacs's
+An integrated, keyboard driven file selector for VS Code, inspired by Emacs's
 [Helm](https://emacs-helm.github.io/helm/) file selector.
 
 ![screenshot](images/file-browser.gif)
