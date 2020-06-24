@@ -10,7 +10,7 @@ enum Action {
     NewFolder,
 }
 
-async function setContext(state: boolean) {
+function setContext(state: boolean) {
     vscode.commands.executeCommand("setContext", "inFileBrowser", state);
 }
 
@@ -222,30 +222,32 @@ class FileBrowser {
 export function activate(context: vscode.ExtensionContext) {
     setContext(false);
 
-    const open = vscode.commands.registerCommand("file-browser.open", async () => {
-        const document = vscode.window.activeTextEditor?.document;
-        let path = (vscode.workspace.rootPath || userHome) + Path.sep;
-        if (document && !document.isUntitled) {
-            path = document.fileName;
-        }
-        const pick = new FileBrowser(path);
-        await setContext(true);
-        active = pick;
-    });
-    context.subscriptions.push(open);
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.open", () => {
+            const document = vscode.window.activeTextEditor?.document;
+            let path = (vscode.workspace.rootPath || userHome) + Path.sep;
+            if (document && !document.isUntitled) {
+                path = document.fileName;
+            }
+            active = new FileBrowser(path);
+            setContext(true);
+        })
+    );
 
-    const stepInCmd = vscode.commands.registerCommand("file-browser.stepIn", () => {
-        if (active !== undefined) {
-            active.stepIn();
-        }
-    });
-    context.subscriptions.push(stepInCmd);
-    const stepOutCmd = vscode.commands.registerCommand("file-browser.stepOut", () => {
-        if (active !== undefined) {
-            active.stepOut();
-        }
-    });
-    context.subscriptions.push(stepOutCmd);
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.stepIn", () => {
+            if (active !== undefined) {
+                active.stepIn();
+            }
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.stepOut", () => {
+            if (active !== undefined) {
+                active.stepOut();
+            }
+        })
+    );
 }
 
 export function deactivate() {}
