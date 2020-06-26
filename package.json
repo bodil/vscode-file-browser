@@ -17,6 +17,7 @@
         "emacs",
         "helm"
     ],
+    "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.46.0"
     },
