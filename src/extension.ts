@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Uri, QuickPickItem, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
-import * as userHome from "user-home";
 import * as Path from "path";
+import * as OS from "os";
 
 let active: FileBrowser | undefined = undefined;
 
@@ -161,7 +161,7 @@ class FileBrowser {
         } else if (value.endsWith("/")) {
             const path = value.slice(0, -1);
             if (path === "~") {
-                this.path = splitPath(userHome);
+                this.path = splitPath(OS.homedir());
             } else {
                 this.path.push(path);
             }
@@ -327,7 +327,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("file-browser.open", () => {
             const document = vscode.window.activeTextEditor?.document;
-            let path = (vscode.workspace.rootPath || userHome) + Path.sep;
+            let path = (vscode.workspace.rootPath || OS.homedir()) + Path.sep;
             if (document && !document.isUntitled) {
                 path = document.fileName;
             }
