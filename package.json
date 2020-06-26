@@ -41,6 +41,10 @@
             {
                 "command": "file-browser.stepOut",
                 "title": "File Browser: Step Out"
+            },
+            {
+                "command": "file-browser.actions",
+                "title": "File Browser: Actions"
             }
         ],
         "keybindings": [
@@ -52,6 +56,11 @@
             {
                 "key": "left",
                 "command": "file-browser.stepOut",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "ctrl+a",
+                "command": "file-browser.actions",
                 "when": "inFileBrowser"
             }
         ]

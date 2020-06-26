@@ -5,6 +5,19 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.1]
+
+### ADDED
+
+-   You can now bring up rename/delete actions on a folder with the "Ctrl+A" key or by using the new
+    action menu button.
+-   When you rename or delete a file or folder, the file browser now stays open.
+
+### FIXED
+
+-   Stepping into a folder that doesn't currently exist now correctly displays the "Create folder"
+    action.
+
 ## [0.2.0]
 
 ### ADDED
