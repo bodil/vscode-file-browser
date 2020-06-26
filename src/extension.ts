@@ -3,7 +3,9 @@ import { Uri, QuickPickItem, FileType, QuickInputButton, ThemeIcon, ViewColumn }
 import * as Path from "path";
 import * as OS from "os";
 
-let active: FileBrowser | undefined = undefined;
+import { Result, None, Option, Some } from "./rust";
+
+let active: Option<FileBrowser> = None;
 
 enum Action {
     NewFile,
@@ -35,7 +37,7 @@ function joinPath(path: string[]): string {
     return path.join(Path.sep);
 }
 
-function fileRecordCompare(left: [string, FileType], right: [string, FileType]) {
+function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
     const [leftName, leftDir] = [
         left[0].toLowerCase(),
         (left[1] & FileType.Directory) === FileType.Directory,
@@ -126,19 +128,17 @@ class FileBrowser {
     dispose() {
         setContext(false);
         this.current.dispose();
-        active = undefined;
+        active = None;
     }
 
     async update() {
         this.current.enabled = false;
         this.current.title = joinPath(this.path);
         this.current.value = "";
-        let stat;
-        try {
-            stat = await vscode.workspace.fs.stat(Uri.file(this.current.title));
-        } catch (err) {
-            stat = undefined;
-        }
+
+        const stat = (
+            await Result.try(vscode.workspace.fs.stat(Uri.file(this.current.title)))
+        ).unwrap();
         if (stat && this.inActions && (stat.type & FileType.File) === FileType.File) {
             this.items = [
                 action("$(file) Open this file", Action.OpenFile),
@@ -212,32 +212,35 @@ class FileBrowser {
         }
     }
 
-    activeItem(): FileItem | undefined {
-        return this.current.activeItems[0];
+    activeItem(): Option<FileItem> {
+        return new Option(this.current.activeItems[0]);
     }
 
     async stepIn() {
-        let item = this.activeItem();
-        if (item?.action !== undefined) {
-            this.runAction(item);
-        } else if (item?.fileType !== undefined) {
-            if ((item.fileType & FileType.Directory) === FileType.Directory) {
-                this.path.push(item.name);
-                this.file = this.pathHistory[joinPath(this.path)];
-                await this.update();
-            } else if ((item.fileType & FileType.File) === FileType.File) {
-                this.path.push(item.name);
-                this.file = undefined;
-                this.inActions = true;
-                await this.update();
+        this.activeItem().ifSome(async (item) => {
+            if (item.action !== undefined) {
+                this.runAction(item);
+            } else if (item.fileType !== undefined) {
+                if ((item.fileType & FileType.Directory) === FileType.Directory) {
+                    this.path.push(item.name);
+                    this.file = this.pathHistory[joinPath(this.path)];
+                    await this.update();
+                } else if ((item.fileType & FileType.File) === FileType.File) {
+                    this.path.push(item.name);
+                    this.file = undefined;
+                    this.inActions = true;
+                    await this.update();
+                }
             }
-        }
+        });
     }
 
     async stepOut() {
         this.inActions = false;
         if (this.path.length > 1) {
-            this.pathHistory[joinPath(this.path)] = this.activeItem()?.name;
+            this.pathHistory[joinPath(this.path)] = this.activeItem()
+                .map((item) => item.name)
+                .unwrap();
             this.file = this.path.pop();
             await this.update();
         }
@@ -247,19 +250,16 @@ class FileBrowser {
         if (this.inActions) {
             return;
         }
-        let item = this.activeItem();
-        if (item === undefined) {
-            return;
-        }
-        this.inActions = true;
-        this.path.push(item.name);
-        this.file = undefined;
-        await this.update();
+        this.activeItem().ifSome(async (item) => {
+            this.inActions = true;
+            this.path.push(item.name);
+            this.file = undefined;
+            await this.update();
+        });
     }
 
     onDidAccept() {
-        const item = this.activeItem();
-        if (item !== undefined) {
+        this.activeItem().ifSome((item) => {
             if (item.action !== undefined) {
                 this.runAction(item);
             } else if (
@@ -272,7 +272,7 @@ class FileBrowser {
                 const uri = Uri.file(fileName);
                 this.openFile(uri);
             }
-        }
+        });
     }
 
     openFile(uri: Uri, column: ViewColumn = ViewColumn.Active) {
@@ -337,10 +337,9 @@ class FileBrowser {
                     const newUri = workspaceFolder
                         ? Uri.joinPath(workspaceFolder, result)
                         : Uri.file(result);
-                    try {
-                        await vscode.workspace.fs.rename(uri, newUri);
+                    if ((await Result.try(vscode.workspace.fs.rename(uri, newUri))).isOk()) {
                         this.file = Path.basename(result);
-                    } catch (err) {
+                    } else {
                         vscode.window.showErrorMessage(
                             `Failed to rename ${fileType} "${fileName}"`
                         );
@@ -363,9 +362,10 @@ class FileBrowser {
                 const goAhead = `$(trash) Delete the ${fileType} "${fileName}"`;
                 const result = await vscode.window.showQuickPick(["$(close) Cancel", goAhead], {});
                 if (result === goAhead) {
-                    try {
-                        await vscode.workspace.fs.delete(uri, { recursive: isDir });
-                    } catch (err) {
+                    const delOp = await Result.try(
+                        vscode.workspace.fs.delete(uri, { recursive: isDir })
+                    );
+                    if (delOp.isErr()) {
                         vscode.window.showErrorMessage(
                             `Failed to delete ${fileType} "${fileName}"`
                         );
@@ -393,31 +393,25 @@ export function activate(context: vscode.ExtensionContext) {
             if (document && !document.isUntitled) {
                 path = document.fileName;
             }
-            active = new FileBrowser(path);
+            active = Some(new FileBrowser(path));
             setContext(true);
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("file-browser.stepIn", () => {
-            if (active !== undefined) {
-                active.stepIn();
-            }
-        })
+        vscode.commands.registerCommand("file-browser.stepIn", () =>
+            active.ifSome((active) => active.stepIn())
+        )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand("file-browser.stepOut", () => {
-            if (active !== undefined) {
-                active.stepOut();
-            }
-        })
+        vscode.commands.registerCommand("file-browser.stepOut", () =>
+            active.ifSome((active) => active.stepOut())
+        )
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand("file-browser.actions", () => {
-            if (active !== undefined) {
-                active.actions();
-            }
-        })
+        vscode.commands.registerCommand("file-browser.actions", () =>
+            active.ifSome((active) => active.actions())
+        )
     );
 }
 
