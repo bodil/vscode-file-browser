@@ -16,7 +16,8 @@ This is what this extension gives you:
     appears.
 -   Easy navigation in and out of folders by using the left and right arrow keys.
 -   Navigate to your home folder by typing `~/` into the search box.
--   Perform file operations like rename and delete by stepping into a file with the right arrow key.
+-   Perform file operations like rename and delete by stepping into a file with the right arrow key,
+    or by hitting "Ctrl+A" on any file or folder.
 
 ## Licence
 
