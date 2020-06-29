@@ -15,7 +15,8 @@ This is what this extension gives you:
 -   Automatically create files and folders just by typing their names and selecting the option that
     appears.
 -   Easy navigation in and out of folders by using the left and right arrow keys.
--   Navigate to your home folder by typing `~/` into the search box.
+-   Navigate to your home folder by typing `~/` into the search box, or step up to the parent folder
+    by typing `../`.
 -   Perform file operations like rename and delete by stepping into a file with the right arrow key,
     or by hitting "Ctrl+A" on any file or folder.
 

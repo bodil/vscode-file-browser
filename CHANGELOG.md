@@ -5,6 +5,16 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.3]
+
+### ADDED
+
+-   You can now type `../` to step up to the parent directory. (#1)
+
+### FIXED
+
+-   Typing a single `/` will now be quietly ignored instead of causing unexpected behaviour.
+
 ## [0.2.1]
 
 ### ADDED
