@@ -180,6 +180,10 @@ class FileBrowser {
         if (existingItem !== undefined) {
             this.current.items = this.items;
             this.current.activeItems = [existingItem];
+        } else if (value.endsWith("../")) {
+            this.path.pop();
+            this.file = undefined;
+            this.update();
         } else if (value.endsWith("/")) {
             const path = value.slice(0, -1);
             if (path === "~") {
