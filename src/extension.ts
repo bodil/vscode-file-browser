@@ -14,6 +14,7 @@ enum Action {
     OpenFileBeside,
     RenameFile,
     DeleteFile,
+    OpenFolder,
 }
 
 function action(label: string, action: Action) {
@@ -153,6 +154,7 @@ class FileBrowser {
             (stat.type & FileType.Directory) === FileType.Directory
         ) {
             this.items = [
+                action("$(folder-opened) Open this folder", Action.OpenFolder),
                 action("$(edit) Rename this folder", Action.RenameFile),
                 action("$(trash) Delete this folder", Action.DeleteFile),
             ];
@@ -377,6 +379,11 @@ class FileBrowser {
                 this.keepAlive = false;
                 this.inActions = false;
                 this.update();
+                break;
+            }
+            case Action.OpenFolder: {
+                const uri = Uri.file(joinPath(this.path));
+                vscode.commands.executeCommand("vscode.openFolder", uri);
                 break;
             }
             default:

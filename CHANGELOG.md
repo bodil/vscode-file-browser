@@ -5,6 +5,12 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.4]
+
+### ADDED
+
+-   There is now an option to open the folder as a workspace if you hit "Ctrl+A" on a folder.
+
 ## [0.2.3]
 
 ### ADDED
