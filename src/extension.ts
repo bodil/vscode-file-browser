@@ -55,6 +55,10 @@ function fileRecordCompare(left: [string, FileType], right: [string, FileType]):
     }
     return leftName > rightName ? 1 : leftName === rightName ? 0 : -1;
 }
+interface AutoCompletion {
+    index: number;
+    items: string[];
+}
 
 class FileItem implements QuickPickItem {
     name: string;
@@ -94,6 +98,7 @@ class FileBrowser {
     pathHistory: { [path: string]: string | undefined };
     inActions: boolean = false;
     keepAlive: boolean = false;
+    autoCompletion?: AutoCompletion;
 
     actionsButton: QuickInputButton = {
         iconPath: new ThemeIcon("ellipsis"),
@@ -174,10 +179,15 @@ class FileBrowser {
         this.current.enabled = true;
     }
 
-    onDidChangeValue(value: string) {
+    onDidChangeValue(value: string, isAutoComplete = false) {
         if (this.inActions) {
             return;
         }
+
+        if (!isAutoComplete) {
+            this.autoCompletion = undefined;
+        }
+
         const existingItem = this.items.find((item) => item.name === value);
         if (existingItem !== undefined) {
             this.current.items = this.items;
@@ -262,7 +272,33 @@ class FileBrowser {
         });
     }
 
+    tabCompletion(tabNext: boolean) {
+        if (this.inActions) {
+            return;
+        }
+
+        if (this.autoCompletion) {
+            const length = this.autoCompletion.items.length;
+            const step = tabNext ? 1 : -1;
+            this.autoCompletion.index = (this.autoCompletion.index + length + step) % length;
+        } else {
+            const items = this.items.map(i => i.name).filter(n => n.startsWith(this.current.value));
+            this.autoCompletion = {
+                index: tabNext ? 0 : items.length - 1,
+                items,
+            };
+        }
+
+        const newIndex = this.autoCompletion.index;
+        if (newIndex < this.autoCompletion.items.length) {
+            // This also checks out when items is empty
+            this.current.value = this.autoCompletion.items[newIndex];
+            this.onDidChangeValue(this.current.value, true);
+        }
+    }
+
     onDidAccept() {
+        this.autoCompletion = undefined;
         this.activeItem().ifSome((item) => {
             if (item.action !== undefined) {
                 this.runAction(item);
@@ -422,6 +458,16 @@ export function activate(context: vscode.ExtensionContext) {
             active.ifSome((active) => active.actions())
         )
     );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.tabNext", () =>
+            active.ifSome((active) => active.tabCompletion(true))
+        )
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.tabPrev", () =>
+            active.ifSome((active) => active.tabCompletion(false))
+        )
+    );
 }
 
-export function deactivate() {}
+export function deactivate() { }
