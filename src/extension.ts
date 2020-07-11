@@ -57,7 +57,7 @@ function fileRecordCompare(left: [string, FileType], right: [string, FileType]):
 }
 interface AutoCompletion {
     index: number;
-    items: string[];
+    items: FileItem[];
 }
 
 class FileItem implements QuickPickItem {
@@ -291,7 +291,7 @@ class FileBrowser {
             const step = tabNext ? 1 : -1;
             this.autoCompletion.index = (this.autoCompletion.index + length + step) % length;
         } else {
-            const items = this.items.map(i => i.name).filter(n => n.startsWith(this.current.value));
+            const items = this.items.filter(i => i.name.startsWith(this.current.value));
             this.autoCompletion = {
                 index: tabNext ? 0 : items.length - 1,
                 items,
@@ -299,9 +299,15 @@ class FileBrowser {
         }
 
         const newIndex = this.autoCompletion.index;
-        if (newIndex < this.autoCompletion.items.length) {
+        const length = this.autoCompletion.items.length
+        if (newIndex < length) {
             // This also checks out when items is empty
-            this.current.value = this.autoCompletion.items[newIndex];
+            const item = this.autoCompletion.items[newIndex];
+            this.current.value = item.name;
+            if (length === 1 && item.fileType === FileType.Directory) {
+                this.current.value += Path.sep;
+            }
+
             this.onDidChangeValue(this.current.value, true);
         }
     }
