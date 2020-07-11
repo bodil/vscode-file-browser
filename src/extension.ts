@@ -267,9 +267,15 @@ class FileBrowser {
         if (this.inActions) {
             return;
         }
-        this.activeItem().ifSome(async (item) => {
+        const item = this.activeItem();
+        item.ifSome(async (item) => {
             this.inActions = true;
             this.path.push(item.name);
+            this.file = undefined;
+            await this.update();
+        });
+        item.ifNone(async () => {
+            this.inActions = true;
             this.file = undefined;
             await this.update();
         });
