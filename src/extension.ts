@@ -178,8 +178,12 @@ class FileBrowser {
         if (this.inActions) {
             return;
         }
+
         const existingItem = this.items.find((item) => item.name === value);
-        if (existingItem !== undefined) {
+        if (value === '') {
+            this.current.items = this.items;
+            this.current.activeItems = [];
+        } else if (existingItem !== undefined) {
             this.current.items = this.items;
             this.current.activeItems = [existingItem];
         } else if (value.endsWith("/")) {
