@@ -189,7 +189,7 @@ class FileBrowser {
         }
 
         const existingItem = this.items.find((item) => item.name === value);
-        if (value === '') {
+        if (value === "") {
             this.current.items = this.items;
             this.current.activeItems = [];
         } else if (existingItem !== undefined) {
@@ -267,18 +267,19 @@ class FileBrowser {
         if (this.inActions) {
             return;
         }
-        const item = this.activeItem();
-        item.ifSome(async (item) => {
-            this.inActions = true;
-            this.path.push(item.name);
-            this.file = undefined;
-            await this.update();
-        });
-        item.ifNone(async () => {
-            this.inActions = true;
-            this.file = undefined;
-            await this.update();
-        });
+        await this.activeItem().match(
+            async (item) => {
+                this.inActions = true;
+                this.path.push(item.name);
+                this.file = undefined;
+                await this.update();
+            },
+            async () => {
+                this.inActions = true;
+                this.file = undefined;
+                await this.update();
+            }
+        );
     }
 
     tabCompletion(tabNext: boolean) {
@@ -291,7 +292,9 @@ class FileBrowser {
             const step = tabNext ? 1 : -1;
             this.autoCompletion.index = (this.autoCompletion.index + length + step) % length;
         } else {
-            const items = this.items.filter(i => i.name.startsWith(this.current.value));
+            const items = this.items.filter((i) =>
+                i.name.toLowerCase().startsWith(this.current.value.toLowerCase())
+            );
             this.autoCompletion = {
                 index: tabNext ? 0 : items.length - 1,
                 items,
@@ -299,7 +302,7 @@ class FileBrowser {
         }
 
         const newIndex = this.autoCompletion.index;
-        const length = this.autoCompletion.items.length
+        const length = this.autoCompletion.items.length;
         if (newIndex < length) {
             // This also checks out when items is empty
             const item = this.autoCompletion.items[newIndex];
@@ -485,4 +488,4 @@ export function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export function deactivate() { }
+export function deactivate() {}
