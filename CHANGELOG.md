@@ -5,11 +5,19 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.5]
+
+### ADDED
+
+-   You can now start typing a file name and hit `Tab` to autocomplete it. If there are multiple
+    matches, you can cycle through them with `Tab` and `Shift+Tab`. (#3)
+-   If you're in an empty folder, `Ctrl+A` now works to open the folder actions. (#3)
+
 ## [0.2.4]
 
 ### ADDED
 
--   There is now an option to open the folder as a workspace if you hit "Ctrl+A" on a folder.
+-   There is now an option to open the folder as a workspace if you hit `Ctrl+A` on a folder.
 
 ## [0.2.3]
 

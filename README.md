@@ -11,14 +11,14 @@ This is what this extension gives you:
 
 -   A fully keyboard driven file open dialog: bind `file-browser.open` to `Ctrl+O` (or `C-x C-f` if
     you're an Emacs expat) and enjoy the lack of OS file dialog clutter.
--   Start typing a file name to quickly find it in the current folder.
+-   Start typing a file name to quickly find it in the current folder. Use `Tab` to autocomplete.
 -   Automatically create files and folders just by typing their names and selecting the option that
     appears.
 -   Easy navigation in and out of folders by using the left and right arrow keys.
 -   Navigate to your home folder by typing `~/` into the search box, or step up to the parent folder
     by typing `../`.
 -   Perform file operations like rename and delete by stepping into a file with the right arrow key,
-    or by hitting "Ctrl+A" on any file or folder.
+    or by hitting `Ctrl+A` on any file or folder.
 
 ## Licence
 
