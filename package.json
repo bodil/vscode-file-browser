@@ -3,7 +3,7 @@
     "publisher": "bodil",
     "displayName": "File Browser",
     "description": "A nicer alternative to the file open dialog.",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "license": "LGPL-3.0+",
     "author": {
         "name": "Bodil Stokke",
