@@ -62,6 +62,16 @@
                 "key": "ctrl+a",
                 "command": "file-browser.actions",
                 "when": "inFileBrowser"
+            },
+            {
+                "key": "tab",
+                "command": "file-browser.tabNext",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "shift+tab",
+                "command": "file-browser.tabPrev",
+                "when": "inFileBrowser"
             }
         ]
     },
