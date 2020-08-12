@@ -30,12 +30,14 @@ function setContext(state: boolean) {
     vscode.commands.executeCommand("setContext", "inFileBrowser", state);
 }
 
-function splitPath(path: string): string[] {
-    return path.split(Path.sep);
-}
+function splitPath(filePath: string): string[] {
+    let resolvedPath = Path.resolve(filePath);
+    return [Path.parse(resolvedPath).root,
+            ...resolvedPath.split(Path.sep).slice(1).filter((it:string) => it)];
+};
 
-function joinPath(path: string[]): string {
-    return path.join(Path.sep);
+function joinPath(pathElems: string[]): string {
+    return Path.join(...pathElems);
 }
 
 function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
