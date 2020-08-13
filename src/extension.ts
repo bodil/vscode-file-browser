@@ -38,6 +38,15 @@ function joinPath(path: string[]): string {
     return path.join(Path.sep);
 }
 
+function endsWithPathSep(value: string): boolean {
+    return value.endsWith("/") || value.endsWith(Path.sep);
+}
+
+const regExpTrimPathSeps = new RegExp(`^(${Path.sep}|/)+|(${Path.sep}|/)+$`, 'g');
+function trimPathSeps(value: string): string {
+    return value.replace(regExpTrimPathSeps, '');
+}
+
 function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
     const [leftName, leftDir] = [
         left[0].toLowerCase(),
@@ -195,8 +204,8 @@ class FileBrowser {
         } else if (existingItem !== undefined) {
             this.current.items = this.items;
             this.current.activeItems = [existingItem];
-        } else if (value.endsWith("/")) {
-            const path = value.slice(0, -1);
+        } else if (endsWithPathSep(value)) {
+            const path = trimPathSeps(value);
             if (path === "~") {
                 this.path = splitPath(OS.homedir());
             } else if (path === "..") {
