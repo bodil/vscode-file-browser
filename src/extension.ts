@@ -34,7 +34,7 @@ function splitPath(filePath: string): string[] {
     let resolvedPath = Path.resolve(filePath);
     return [Path.parse(resolvedPath).root,
             ...resolvedPath.split(Path.sep).slice(1).filter((it:string) => it)];
-};
+}
 
 function joinPath(pathElems: string[]): string {
     return Path.join(...pathElems);
