@@ -42,9 +42,14 @@ function endsWithPathSep(value: string): boolean {
     return value.endsWith("/") || value.endsWith(Path.sep);
 }
 
-const regExpTrimPathSeps = new RegExp(`^(${Path.sep}|/)+|(${Path.sep}|/)+$`, 'g');
-function trimPathSeps(value: string): string {
-    return value.replace(regExpTrimPathSeps, '');
+const escapedPathSep = Path.sep.replace('\\', '\\\\');
+const regExpTrimPathSeps = new RegExp(`^(${escapedPathSep}|/)+|(${escapedPathSep}|/)+$`, 'g');
+const regExpCollapsePathSeps = new RegExp(`[${escapedPathSep}/]+`, 'g');
+
+function normalizePathSeps(value: string): string {
+    return value
+        .replace(regExpTrimPathSeps, '')
+        .replace(regExpCollapsePathSeps, Path.sep);
 }
 
 function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
@@ -205,7 +210,7 @@ class FileBrowser {
             this.current.items = this.items;
             this.current.activeItems = [existingItem];
         } else if (endsWithPathSep(value)) {
-            const path = trimPathSeps(value);
+            const path = normalizePathSeps(value);
             if (path === "~") {
                 this.path = splitPath(OS.homedir());
             } else if (path === "..") {
