@@ -5,6 +5,13 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.6]
+
+### FIXED
+
+-   Some path parsing bugs fixed, most notably that Windows root paths will no longer confuse the
+    extension. (#7, #8)
+
 ## [0.2.5]
 
 ### ADDED
