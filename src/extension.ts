@@ -33,8 +33,13 @@ function setContext(state: boolean) {
 
 function splitPath(filePath: string): string[] {
     let resolvedPath = Path.resolve(filePath);
-    return [Path.parse(resolvedPath).root,
-            ...resolvedPath.split(Path.sep).slice(1).filter((it:string) => it)];
+    return [
+        Path.parse(resolvedPath).root,
+        ...resolvedPath
+            .split(Path.sep)
+            .slice(1)
+            .filter((it: string) => it),
+    ];
 }
 
 function joinPath(pathElems: string[]): string {
@@ -45,14 +50,12 @@ function endsWithPathSep(value: string): boolean {
     return value.endsWith("/") || value.endsWith(Path.sep);
 }
 
-const escapedPathSep = Path.sep.replace('\\', '\\\\');
-const regExpTrimPathSeps = new RegExp(`^(${escapedPathSep}|/)+|(${escapedPathSep}|/)+$`, 'g');
-const regExpCollapsePathSeps = new RegExp(`[${escapedPathSep}/]+`, 'g');
+const escapedPathSep = Path.sep.replace("\\", "\\\\");
+const regExpTrimPathSeps = new RegExp(`^(${escapedPathSep}|/)+|(${escapedPathSep}|/)+$`, "g");
+const regExpCollapsePathSeps = new RegExp(`[${escapedPathSep}/]+`, "g");
 
 function normalizePathSeps(value: string): string {
-    return value
-        .replace(regExpTrimPathSeps, '')
-        .replace(regExpCollapsePathSeps, Path.sep);
+    return value.replace(regExpTrimPathSeps, "").replace(regExpCollapsePathSeps, Path.sep);
 }
 
 function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
