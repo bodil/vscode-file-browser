@@ -5,6 +5,13 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.7]
+
+### ADDED
+
+-   You can now optionally open a folder in a new window instead of replacing the current project
+    folder. (#11)
+
 ## [0.2.6]
 
 ### FIXED
