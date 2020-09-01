@@ -51,6 +51,11 @@
                     "type": "boolean",
                     "default": true
                 },
+                "file-browser.labelIgnoredFiles": {
+                    "markdownDescription": "Label files hidden by a `.gitignore` file as such.",
+                    "type": "boolean",
+                    "default": false
+                },
                 "file-browser.ignoreFileTypes": {
                     "markdownDescription": "A list of `.gitignore` style files to look for and hide files accordingly when browsing. The extension will obey only the first file it finds from this list, searching upwards from the current directory, so make sure the order is as you like it.",
                     "type": "array",

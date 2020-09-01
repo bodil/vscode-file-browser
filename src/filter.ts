@@ -60,7 +60,9 @@ export class Rules {
             const ignored = this.rules.test(path).ignored;
             if (ignored) {
                 item.alwaysShow = false;
-                item.description = `(in ${this.name})`;
+                if (config(ConfigItem.LabelIgnoredFiles)) {
+                    item.description = `(in ${this.name})`;
+                }
             }
             return item;
         });

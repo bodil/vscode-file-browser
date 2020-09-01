@@ -5,6 +5,12 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.9]
+
+### ADDED
+
+-   You can now toggle the labelling of `.gitignore`d files on or off in the settings.
+
 ## [0.2.8]
 
 ### ADDED

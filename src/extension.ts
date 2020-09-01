@@ -14,6 +14,7 @@ export enum ConfigItem {
     HideDotfiles = "hideDotfiles",
     HideIgnoreFiles = "hideIgnoredFiles",
     IgnoreFileTypes = "ignoreFileTypes",
+    LabelIgnoredFiles = "labelIgnoredFiles",
 }
 
 export function config<A>(item: ConfigItem): A | undefined {
