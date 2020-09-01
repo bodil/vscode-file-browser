@@ -9,6 +9,8 @@ file.
 
 ### ADDED
 
+-   You now have the option to hide files matched by `.gitignore` and similar in addition to
+    dotfiles when matching, or to remove these from the directory listing entirely.
 -   The extension can now run as a local extension when using a remote, so that it will still be
     available if you have it installed locally but not on the remote. It will prefer the remote
     installation if one is available, because the local version will render paths the way the local

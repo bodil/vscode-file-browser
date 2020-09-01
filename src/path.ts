@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { Uri, WorkspaceFolder } from "vscode";
+import { Uri, WorkspaceFolder, FileStat, FileType, FileSystemError } from "vscode";
 import * as OSPath from "path";
-import { Option, None, Some } from "./rust";
+import { Option, None, Some, Result, Err, Ok } from "./rust";
 
 export class Path {
     private pathUri: Uri;
@@ -69,6 +69,16 @@ export class Path {
     }
 
     /**
+     * Return the parent of a path.
+     *
+     * This always succeeds; if the path has no parent, it returns itself.
+     * Use [[`Path.atTop`]] to check whether a path has a parent.
+     */
+    parent(): Path {
+        return this.append("..");
+    }
+
+    /**
      * Push `pathSegments` onto the end of the path.
      */
     push(...pathSegments: string[]) {
@@ -100,6 +110,26 @@ export class Path {
         const relPath = OSPath.relative(other.fsPath, this.pathUri.fsPath);
         return Some(relPath);
     }
+
+    async stat(): Promise<Result<FileStat, Error>> {
+        return Result.try(vscode.workspace.fs.stat(this.pathUri));
+    }
+
+    async isDir(): Promise<boolean> {
+        const stat = await this.stat();
+        return stat.match(
+            (stat) => !!(stat.type | FileType.Directory),
+            () => false
+        );
+    }
+
+    async isFile(): Promise<boolean> {
+        const stat = await this.stat();
+        return stat.match(
+            (stat) => !!(stat.type | FileType.File),
+            () => false
+        );
+    }
 }
 
 /**
@@ -114,4 +144,36 @@ export function endsWithPathSeparator(value: string): Option<string> {
         return Some(value.slice(0, value.length - OSPath.sep.length));
     }
     return None;
+}
+
+/**
+ * Given a list of file names, try to find one of them in the provided path,
+ * then step up one folder at a time and repeat the search until we find something
+ * or run out of parents.
+ *
+ * If no file is found, we return [[FileSystemError.FileNotFound]].
+ *
+ * If `uri` points to a file, we immediately return [[FileSystemError.FileNotADirectory]].
+ *
+ * Returns either the [[Uri]] of the first file found, or [[None]].
+ */
+export async function lookUpwards(
+    uri: Uri,
+    files: string[]
+): Promise<Result<Uri, FileSystemError>> {
+    const path = new Path(uri);
+    if (!(await path.isDir())) {
+        return Err(FileSystemError.FileNotADirectory(uri));
+    }
+    while (true) {
+        for (const file of files) {
+            let filePath = path.append(file);
+            if (await filePath.isFile()) {
+                return Ok(filePath.uri);
+            }
+        }
+        if (path.pop().isNone()) {
+            return Err(FileSystemError.FileNotFound());
+        }
+    }
 }

@@ -5,84 +5,30 @@ import * as OSPath from "path";
 
 import { Result, None, Option, Some } from "./rust";
 import { Path, endsWithPathSeparator } from "./path";
+import { Rules } from "./filter";
+import { FileItem, fileRecordCompare } from "./fileitem";
+import { action, Action } from "./action";
+
+export enum ConfigItem {
+    RemoveIgnoredFiles = "removeIgnoredFiles",
+    HideDotfiles = "hideDotfiles",
+    HideIgnoreFiles = "hideIgnoredFiles",
+    IgnoreFileTypes = "ignoreFileTypes",
+}
+
+export function config<A>(item: ConfigItem): A | undefined {
+    return vscode.workspace.getConfiguration("file-browser").get(item);
+}
 
 let active: Option<FileBrowser> = None;
-
-enum Action {
-    NewFile,
-    NewFolder,
-    OpenFile,
-    OpenFileBeside,
-    RenameFile,
-    DeleteFile,
-    OpenFolder,
-    OpenFolderInNewWindow,
-}
-
-function action(label: string, action: Action) {
-    return {
-        label,
-        name: "",
-        action,
-        alwaysShow: true,
-    };
-}
 
 function setContext(state: boolean) {
     vscode.commands.executeCommand("setContext", "inFileBrowser", state);
 }
 
-function fileRecordCompare(left: [string, FileType], right: [string, FileType]): -1 | 0 | 1 {
-    const [leftName, leftDir] = [
-        left[0].toLowerCase(),
-        (left[1] & FileType.Directory) === FileType.Directory,
-    ];
-    const [rightName, rightDir] = [
-        right[0].toLowerCase(),
-        (right[1] & FileType.Directory) === FileType.Directory,
-    ];
-    if (leftDir && !rightDir) {
-        return -1;
-    }
-    if (rightDir && !leftDir) {
-        return 1;
-    }
-    return leftName > rightName ? 1 : leftName === rightName ? 0 : -1;
-}
-
 interface AutoCompletion {
     index: number;
     items: FileItem[];
-}
-
-class FileItem implements QuickPickItem {
-    name: string;
-    label: string;
-    alwaysShow: boolean;
-    detail?: string;
-    description?: string;
-    fileType?: FileType;
-    action?: Action;
-
-    constructor(record: [string, FileType]) {
-        const [name, fileType] = record;
-        this.name = name;
-        this.fileType = fileType;
-        this.alwaysShow = !name.startsWith(".");
-        switch (this.fileType) {
-            case FileType.Directory:
-                this.label = `$(folder) ${name}`;
-                break;
-            case FileType.Directory | FileType.SymbolicLink:
-                this.label = `$(file-symlink-directory) ${name}`;
-                break;
-            case FileType.File | FileType.SymbolicLink:
-                this.label = `$(file-symlink-file) ${name}`;
-            default:
-                this.label = `$(file) ${name}`;
-                break;
-        }
-    }
 }
 
 class FileBrowser {
@@ -109,7 +55,6 @@ class FileBrowser {
     };
 
     constructor(path: Path, file: Option<string>) {
-        console.log("Opened path:", path.uri);
         this.path = path;
         this.file = file;
         this.pathHistory = { [this.path.id]: this.file };
@@ -175,7 +120,14 @@ class FileBrowser {
         } else if (stat && (stat.type & FileType.Directory) === FileType.Directory) {
             const records = await vscode.workspace.fs.readDirectory(this.path.uri);
             records.sort(fileRecordCompare);
-            const items = records.map((entry) => new FileItem(entry));
+            let items = records.map((entry) => new FileItem(entry));
+            if (config(ConfigItem.HideIgnoreFiles)) {
+                const rules = await Rules.forPath(this.path);
+                items = rules.filter(this.path, items);
+            }
+            if (config(ConfigItem.RemoveIgnoredFiles)) {
+                items = items.filter((item) => item.alwaysShow);
+            }
             this.items = items;
             this.current.items = items;
             this.current.activeItems = items.filter((item) => this.file.contains(item.name));

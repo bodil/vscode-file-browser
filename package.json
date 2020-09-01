@@ -33,6 +33,38 @@
         "ui"
     ],
     "contributes": {
+        "configuration": {
+            "title": "File Browser",
+            "properties": {
+                "file-browser.removeIgnoredFiles": {
+                    "markdownDescription": "Never show or match files that are hidden when matching by either `#file-browser.hideIgnoredFiles#` or `#file-browser.hideDotfiles#`.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "file-browser.hideDotfiles": {
+                    "markdownDescription": "When filtering by name, hide unmatched dotfiles (files whose names start with `.`).",
+                    "type": "boolean",
+                    "default": true
+                },
+                "file-browser.hideIgnoredFiles": {
+                    "markdownDescription": "When filtering by name, hide unmatched files according to rules in `.gitignore` style files, as defined in `#file-browser.ignoreFileTypes#`.",
+                    "type": "boolean",
+                    "default": true
+                },
+                "file-browser.ignoreFileTypes": {
+                    "markdownDescription": "A list of `.gitignore` style files to look for and hide files accordingly when browsing. The extension will obey only the first file it finds from this list, searching upwards from the current directory, so make sure the order is as you like it.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        ".gitignore",
+                        ".npmignore",
+                        ".vscodeignore"
+                    ]
+                }
+            }
+        },
         "commands": [
             {
                 "command": "file-browser.open",
@@ -101,5 +133,8 @@
         "typedoc": "^0.19.0",
         "typescript": "^4.0.2",
         "vscode-test": "^1.4.0"
+    },
+    "dependencies": {
+        "ignore": "^5.1.8"
     }
 }
