@@ -62,6 +62,13 @@ export class Option<A> {
     }
 
     /**
+     * Test if the [[Option]] contains a value that's equal to `value`.
+     */
+    contains(value: A): boolean {
+        return this.option === value;
+    }
+
+    /**
      * Call the provided function with the contained value if the [[Option]] is non-null.
      */
     ifSome(onSome: (value: A) => void) {
@@ -144,6 +151,20 @@ export class Option<A> {
      */
     unwrap(): A | undefined {
         return this.option;
+    }
+
+    /**
+     * Convert the [[Option]] into a value of `A`, using the provided default value if the [[Option]] is null.
+     */
+    unwrapOr(defaultValue: A): A {
+        return this.match(id, constant(defaultValue));
+    }
+
+    /**
+     * Convert the [[Option]] into a value of `A`, calling the provided function to produce a default value if the [[Option]] is null.
+     */
+    unwrapOrElse(f: () => A): A {
+        return this.match(id, f);
     }
 }
 

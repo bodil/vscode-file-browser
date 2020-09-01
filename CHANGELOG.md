@@ -5,6 +5,23 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.8]
+
+### ADDED
+
+-   The extension can now run as a local extension when using a remote, so that it will still be
+    available if you have it installed locally but not on the remote. It will prefer the remote
+    installation if one is available, because the local version will render paths the way the local
+    OS thinks they should look, rather than how the remote OS would render them.
+
+### FIXED
+
+-   Paths are now stored as `vscode.Uri` internally, and using `Uri` for path manipulation as much
+    as possible, which should lead to more robust cross platform path handling in general, and when
+    dealing with local files open on a remote in particular.
+-   You can now use the left and right arrow keys normally in the input box when renaming a file,
+    where it would previously lead to unexpectedly reopening the file browser.
+
 ## [0.2.7]
 
 ### ADDED
