@@ -49,7 +49,7 @@
                 "file-browser.hideIgnoredFiles": {
                     "markdownDescription": "When filtering by name, hide unmatched files according to rules in `.gitignore` style files, as defined in `#file-browser.ignoreFileTypes#`.",
                     "type": "boolean",
-                    "default": true
+                    "default": false
                 },
                 "file-browser.labelIgnoredFiles": {
                     "markdownDescription": "Label files hidden by a `.gitignore` file as such.",

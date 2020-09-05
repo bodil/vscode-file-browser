@@ -5,6 +5,13 @@ All notable changes to the "file-browser" extension will be documented in this f
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
 
+## [0.2.10]
+
+### CHANGED
+
+-   The `file-browser.hideIgnoredFiles` setting is now off by default, as it can have a noticeable
+    performance impact on certain filesystems. (#14)
+
 ## [0.2.9]
 
 ### ADDED
