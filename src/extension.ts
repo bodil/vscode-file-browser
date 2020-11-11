@@ -9,6 +9,8 @@ import { Rules } from "./filter";
 import { FileItem, fileRecordCompare } from "./fileitem";
 import { action, Action } from "./action";
 
+const fileSystemRootPath = OSPath.parse(process.cwd()).root;
+
 export enum ConfigItem {
     RemoveIgnoredFiles = "removeIgnoredFiles",
     HideDotfiles = "hideDotfiles",
@@ -155,6 +157,8 @@ class FileBrowser {
         } else if (existingItem !== undefined) {
             this.current.items = this.items;
             this.current.activeItems = [existingItem];
+        } else if (value === fileSystemRootPath) {
+            this.stepIntoFolder(Path.fromFilePath(fileSystemRootPath));
         } else {
             endsWithPathSeparator(value).match(
                 (path) => {
