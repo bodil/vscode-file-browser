@@ -61,7 +61,7 @@ class FileBrowser {
         this.pathHistory = { [this.path.id]: this.file };
         this.current = vscode.window.createQuickPick();
         this.current.buttons = [this.actionsButton, this.stepOutButton, this.stepInButton];
-        this.current.placeholder = "Type a file name here to search or open a new file";
+        this.current.placeholder = "Preparing the file list...";
         this.current.onDidHide(() => {
             if (!this.keepAlive) {
                 this.dispose();
@@ -70,7 +70,10 @@ class FileBrowser {
         this.current.onDidAccept(this.onDidAccept.bind(this));
         this.current.onDidChangeValue(this.onDidChangeValue.bind(this));
         this.current.onDidTriggerButton(this.onDidTriggerButton.bind(this));
-        this.update().then(() => this.current.show());
+        this.update().then(() => {
+            this.current.placeholder = "Type a file name here to search or open a new file";
+            this.current.busy = false;
+        });
     }
 
     dispose() {
@@ -91,6 +94,8 @@ class FileBrowser {
 
     async update() {
         this.current.enabled = false;
+        this.current.show();
+        this.current.busy = true;
         this.current.title = this.path.fsPath;
         this.current.value = "";
 
