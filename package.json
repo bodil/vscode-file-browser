@@ -3,7 +3,7 @@
     "publisher": "bodil",
     "displayName": "File Browser",
     "description": "A nicer alternative to the file open dialog.",
-    "version": "0.2.10",
+    "version": "0.2.12",
     "license": "LGPL-3.0+",
     "author": {
         "name": "Bodil Stokke",
@@ -25,6 +25,7 @@
         "Other"
     ],
     "activationEvents": [
+        "onStartupFinished",
         "onCommand:file-browser.open"
     ],
     "main": "./out/extension.js",
