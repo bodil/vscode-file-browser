@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Uri, QuickPickItem, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
+import { Uri, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
 import * as OS from "os";
 import * as OSPath from "path";
 
@@ -92,15 +92,17 @@ class FileBrowser {
     async update() {
         this.current.enabled = false;
         this.current.title = this.path.fsPath;
-        this.current.value = "";
+        // this.current.value = "";
 
         const stat = (await Result.try(vscode.workspace.fs.stat(this.path.uri))).unwrap();
         if (stat && this.inActions && (stat.type & FileType.File) === FileType.File) {
+            const selectedFile = new Path(this.path.uri).pop().unwrap();
             this.items = [
-                action("$(file) Open this file", Action.OpenFile),
-                action("$(split-horizontal) Open this file to the side", Action.OpenFileBeside),
-                action("$(edit) Rename this file", Action.RenameFile),
-                action("$(trash) Delete this file", Action.DeleteFile),
+                action(`$(new-file) Create file: ${this.current.value}`, Action.NewFile, this.current.value),
+                action(`$(file) Open file '${selectedFile}'`, Action.OpenFile),
+                action(`$(split-horizontal) Open file '${selectedFile}' to the side`, Action.OpenFileBeside),
+                action(`$(edit) Rename file '${selectedFile}'`, Action.RenameFile),
+                action(`$(trash) Delete file '${selectedFile}'`, Action.DeleteFile),
             ];
             this.current.items = this.items;
         } else if (
@@ -166,17 +168,7 @@ class FileBrowser {
                         this.stepIntoFolder(this.path.append(path));
                     }
                 },
-                () => {
-                    const newItem = {
-                        label: `$(new-file) ${value}`,
-                        name: value,
-                        description: "Open as new file",
-                        alwaysShow: true,
-                        action: Action.NewFile,
-                    };
-                    this.current.items = [newItem, ...this.items];
-                    this.current.activeItems = [newItem];
-                }
+                () => { }
             );
         }
     }

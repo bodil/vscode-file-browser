@@ -9,10 +9,10 @@ export enum Action {
     OpenFolderInNewWindow,
 }
 
-export function action(label: string, action: Action) {
+export function action(label: string, action: Action, name: string = "") {
     return {
         label,
-        name: "",
+        name,
         action,
         alwaysShow: true,
     };
