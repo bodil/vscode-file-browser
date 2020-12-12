@@ -1,0 +1,145 @@
+{
+    "name": "file-browser",
+    "publisher": "bodil",
+    "displayName": "File Browser",
+    "description": "A nicer alternative to the file open dialog.",
+    "version": "0.2.10",
+    "license": "LGPL-3.0+",
+    "author": {
+        "name": "Bodil Stokke",
+        "url": "https://bodil.lol/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bodil/vscode-file-browser"
+    },
+    "keywords": [
+        "emacs",
+        "helm"
+    ],
+    "icon": "images/icon.png",
+    "engines": {
+        "vscode": "^1.46.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:file-browser.open"
+    ],
+    "main": "./out/extension.js",
+    "extensionKind": [
+        "workspace",
+        "ui"
+    ],
+    "contributes": {
+        "configuration": {
+            "title": "File Browser",
+            "properties": {
+                "file-browser.removeIgnoredFiles": {
+                    "markdownDescription": "Never show or match files that are hidden when matching by either `#file-browser.hideIgnoredFiles#` or `#file-browser.hideDotfiles#`.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "file-browser.hideDotfiles": {
+                    "markdownDescription": "When filtering by name, hide unmatched dotfiles (files whose names start with `.`).",
+                    "type": "boolean",
+                    "default": true
+                },
+                "file-browser.hideIgnoredFiles": {
+                    "markdownDescription": "When filtering by name, hide unmatched files according to rules in `.gitignore` style files, as defined in `#file-browser.ignoreFileTypes#`.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "file-browser.labelIgnoredFiles": {
+                    "markdownDescription": "Label files hidden by a `.gitignore` file as such.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "file-browser.ignoreFileTypes": {
+                    "markdownDescription": "A list of `.gitignore` style files to look for and hide files accordingly when browsing. The extension will obey only the first file it finds from this list, searching upwards from the current directory, so make sure the order is as you like it.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        ".gitignore",
+                        ".npmignore",
+                        ".vscodeignore"
+                    ]
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "file-browser.open",
+                "title": "File Browser: Open"
+            },
+            {
+                "command": "file-browser.stepIn",
+                "title": "File Browser: Step In"
+            },
+            {
+                "command": "file-browser.stepOut",
+                "title": "File Browser: Step Out"
+            },
+            {
+                "command": "file-browser.actions",
+                "title": "File Browser: Actions"
+            }
+        ],
+        "keybindings": [
+            {
+                "key": "right",
+                "command": "file-browser.stepIn",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "left",
+                "command": "file-browser.stepOut",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "ctrl+a",
+                "command": "file-browser.actions",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "tab",
+                "command": "file-browser.tabNext",
+                "when": "inFileBrowser"
+            },
+            {
+                "key": "shift+tab",
+                "command": "file-browser.tabPrev",
+                "when": "inFileBrowser"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "lint": "eslint src --ext ts",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/runTest.js",
+        "doc": "typedoc --mode modules --excludePrivate --readme none --excludeNotExported --excludePrivate --excludeProtected --stripInternal"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.0.3",
+        "@types/node": "^14.6.0",
+        "@types/vscode": "^1.46.0",
+        "@typescript-eslint/eslint-plugin": "^4.0.1",
+        "@typescript-eslint/parser": "^4.0.1",
+        "eslint": "^7.7.0",
+        "glob": "^7.1.6",
+        "mocha": "^8.1.1",
+        "typedoc": "^0.19.0",
+        "typescript": "^4.0.2",
+        "vscode-test": "^1.4.0"
+    },
+    "dependencies": {
+        "ignore": "^5.1.8"
+    }
+}
