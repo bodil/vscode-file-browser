@@ -25,7 +25,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:file-browser.open"
+        "onCommand:file-browser.open",
+        "onCommand:file-browser.rename"
     ],
     "main": "./out/extension.js",
     "extensionKind": [
@@ -74,6 +75,10 @@
             {
                 "command": "file-browser.open",
                 "title": "File Browser: Open"
+            },
+            {
+                "command": "file-browser.rename",
+                "title": "File Browser: Rename"
             },
             {
                 "command": "file-browser.stepIn",
