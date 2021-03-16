@@ -9,6 +9,10 @@ file.
 
 ## [0.2.11]
 
+## ADDED
+
+- You can now use `file-browser.rename` command to rename currently opened file directly
+
 ### CHANGED
 
 -   While loading the file list, show a 'busy' animation untill the files are ready to be shown.
