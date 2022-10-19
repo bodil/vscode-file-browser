@@ -262,9 +262,6 @@ class FileBrowser {
                     vscode.Uri.file("")
                 );
                 this.pathHistory = { [this.path.id]: this.file };
-
-
-                // console.log("Drives", drives)
             }
 
         }
