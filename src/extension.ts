@@ -8,6 +8,7 @@ import { Path, endsWithPathSeparator } from "./path";
 import { Rules } from "./filter";
 import { FileItem, fileRecordCompare } from "./fileitem";
 import { action, Action } from "./action";
+import * as drivelist from "drivelist";
 
 export enum ConfigItem {
     RemoveIgnoredFiles = "removeIgnoredFiles",
@@ -231,6 +232,41 @@ class FileBrowser {
             this.pathHistory[this.path.id] = this.activeItem().map((item) => item.name);
             this.file = this.path.pop();
             await this.update();
+        } else {
+
+            if (OS.platform() === "win32") {
+                this.current.enabled = false;
+                this.current.show();
+                this.current.busy = true;
+                this.current.title = "Drive Selector";
+                this.current.value = "";
+
+                let drives: string[] = [];
+                await (await drivelist.list()).forEach((drive) => {
+                    drive.mountpoints.forEach((mount) => {
+                        drives.push(mount.path);
+                    });
+                });
+
+                let items = drives.map((drive_path) => {
+                    return new FileItem([drive_path, FileType.Directory])
+                });
+
+                this.items = items;
+                this.current.items = items;
+
+                this.current.enabled = true;
+
+                this.file = None;
+                this.path = new Path(
+                    vscode.Uri.file("")
+                );
+                this.pathHistory = { [this.path.id]: this.file };
+
+
+                // console.log("Drives", drives)
+            }
+
         }
     }
 

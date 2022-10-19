@@ -140,6 +140,7 @@
         "vscode-test": "^1.4.0"
     },
     "dependencies": {
+        "drivelist": "^11.0.0",
         "ignore": "^5.1.8"
     }
 }
