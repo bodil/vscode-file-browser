@@ -7,13 +7,19 @@ file.
 
 ## [0.2.11]
 
+### FIXED
+
+-   Fixed a VSCode regression bug where the file browser would lose focus when navigating up and
+    down the directory tree. (#35, #37)
+
 ## ADDED
 
-- You can now use `file-browser.rename` command to rename currently opened file directly
+-   You can now use `file-browser.rename` command to rename currently opened file directly. (#27)
 
 ### CHANGED
 
 -   While loading the file list, show a 'busy' animation untill the files are ready to be shown.
+    (#23)
 
 ## [0.2.10]
 
