@@ -311,6 +311,42 @@ class FileBrowser {
             .then((doc) => vscode.window.showTextDocument(doc, column));
     }
 
+    async rename() {
+        const uri = this.path.uri;
+        const stat = await vscode.workspace.fs.stat(uri);
+        const isDir = (stat.type & FileType.Directory) === FileType.Directory;
+        const fileName = this.path.pop().unwrapOrElse(() => {
+            throw new Error("Can't rename an empty file name!");
+        });
+        const fileType = isDir ? "folder" : "file";
+        const workspaceFolder = this.path.getWorkspaceFolder().map((wsf) => wsf.uri);
+        const relPath = workspaceFolder
+            .andThen((workspaceFolder) => new Path(uri).relativeTo(workspaceFolder))
+            .unwrapOr(fileName);
+        const extension = OSPath.extname(relPath);
+        const startSelection = relPath.length - fileName.length;
+        const endSelection = startSelection + (fileName.length - extension.length);
+        const result = await vscode.window.showInputBox({
+            prompt: `Enter the new ${fileType} name`,
+            value: relPath,
+            valueSelection: [startSelection, endSelection],
+        });
+        this.file = Some(fileName);
+        if (result !== undefined) {
+            const newUri = workspaceFolder.match(
+                (workspaceFolder) => Uri.joinPath(workspaceFolder, result),
+                () => Uri.joinPath(this.path.uri, result)
+            );
+            if ((await Result.try(vscode.workspace.fs.rename(uri, newUri))).isOk()) {
+                this.file = Some(OSPath.basename(result));
+            } else {
+                vscode.window.showErrorMessage(
+                    `Failed to rename ${fileType} "${fileName}"`
+                );
+            }
+        }
+    }
+
     async runAction(item: FileItem) {
         switch (item.action) {
             case Action.NewFolder: {
@@ -342,39 +378,7 @@ class FileBrowser {
             case Action.RenameFile: {
                 this.keepAlive = true;
                 this.hide();
-                const uri = this.path.uri;
-                const stat = await vscode.workspace.fs.stat(uri);
-                const isDir = (stat.type & FileType.Directory) === FileType.Directory;
-                const fileName = this.path.pop().unwrapOrElse(() => {
-                    throw new Error("Can't rename an empty file name!");
-                });
-                const fileType = isDir ? "folder" : "file";
-                const workspaceFolder = this.path.getWorkspaceFolder().map((wsf) => wsf.uri);
-                const relPath = workspaceFolder
-                    .andThen((workspaceFolder) => new Path(uri).relativeTo(workspaceFolder))
-                    .unwrapOr(fileName);
-                const extension = OSPath.extname(relPath);
-                const startSelection = relPath.length - fileName.length;
-                const endSelection = startSelection + (fileName.length - extension.length);
-                const result = await vscode.window.showInputBox({
-                    prompt: `Enter the new ${fileType} name`,
-                    value: relPath,
-                    valueSelection: [startSelection, endSelection],
-                });
-                this.file = Some(fileName);
-                if (result !== undefined) {
-                    const newUri = workspaceFolder.match(
-                        (workspaceFolder) => Uri.joinPath(workspaceFolder, result),
-                        () => Uri.joinPath(this.path.uri, result)
-                    );
-                    if ((await Result.try(vscode.workspace.fs.rename(uri, newUri))).isOk()) {
-                        this.file = Some(OSPath.basename(result));
-                    } else {
-                        vscode.window.showErrorMessage(
-                            `Failed to rename ${fileType} "${fileName}"`
-                        );
-                    }
-                }
+                await this.rename();
                 this.show();
                 this.keepAlive = false;
                 this.inActions = false;
@@ -440,6 +444,19 @@ export function activate(context: vscode.ExtensionContext) {
             active = Some(new FileBrowser(path, file));
             setContext(true);
         })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.rename", () =>
+            active.orElse(() => {
+                const document = vscode.window.activeTextEditor?.document;
+                let workspaceFolder =
+                    vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
+                let path = new Path(document?.uri || workspaceFolder?.uri || Uri.file(OS.homedir()));
+                active = Some(new FileBrowser(path, None));
+                setContext(true);
+                return active;
+            }).ifSome((active) => active.rename())
+        )
     );
 
     context.subscriptions.push(
