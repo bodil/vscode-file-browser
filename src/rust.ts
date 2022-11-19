@@ -296,7 +296,7 @@ export class Result<A, E> {
  * ```
  */
 export function Ok<A = never, E = never>(value: A): Result<A, E> {
-    return new Result({ tag: "ok", value });
+    return new Result<A, E>({ tag: "ok", value });
 }
 
 /**
@@ -307,5 +307,5 @@ export function Ok<A = never, E = never>(value: A): Result<A, E> {
  * ```
  */
 export function Err<A = never, E = never>(value: E): Result<A, E> {
-    return new Result({ tag: "err", value });
+    return new Result<A, E>({ tag: "err", value });
 }

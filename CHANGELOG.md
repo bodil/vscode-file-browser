@@ -1,11 +1,9 @@
-
 # Change Log
 
 All notable changes to the "file-browser" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this
 file.
-
 
 ## [0.2.11]
 
@@ -16,7 +14,7 @@ file.
 ### CHANGED
 
 -   While loading the file list, show a 'busy' animation untill the files are ready to be shown.
-    
+
 ## [0.2.10]
 
 ### CHANGED

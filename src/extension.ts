@@ -93,7 +93,9 @@ class FileBrowser {
     }
 
     async update() {
-        this.current.enabled = false;
+        // FIXME: temporary and UGLY fix of https://github.com/bodil/vscode-file-browser/issues/35.
+        // Brought in from here https://github.com/atariq11700/vscode-file-browser/commit/a2525d01f262f17dac2c478e56640c9ce1f65713.
+        // this.current.enabled = false;
         this.current.show();
         this.current.busy = true;
         this.current.title = this.path.fsPath;
