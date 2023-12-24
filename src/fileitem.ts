@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { QuickPickItem, FileType } from "vscode";
+import { FileType, QuickPickItem } from "vscode";
 import { Action } from "./action";
-import { config, ConfigItem } from "./extension";
+import { ConfigItem, config } from "./extension";
 
 export class FileItem implements QuickPickItem {
     name: string;
@@ -11,6 +11,7 @@ export class FileItem implements QuickPickItem {
     description?: string;
     fileType?: FileType;
     action?: Action;
+    buttons?: vscode.QuickInputButton[];
 
     constructor(record: [string, FileType]) {
         const [name, fileType] = record;
@@ -28,6 +29,12 @@ export class FileItem implements QuickPickItem {
                 this.label = `$(file-symlink-file) ${name}`;
             default:
                 this.label = `$(file) ${name}`;
+                this.buttons = [
+                    {
+                        iconPath: new vscode.ThemeIcon('split-horizontal'),
+                        tooltip: 'Open in Horizontal split',
+                    },
+                ];
                 break;
         }
     }

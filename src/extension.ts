@@ -1,13 +1,13 @@
-import * as vscode from "vscode";
-import { Uri, QuickPickItem, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
 import * as OS from "os";
 import * as OSPath from "path";
+import * as vscode from "vscode";
+import { FileType, QuickInputButton, ThemeIcon, Uri, ViewColumn } from "vscode";
 
-import { Result, None, Option, Some } from "./rust";
-import { Path, endsWithPathSeparator } from "./path";
-import { Rules } from "./filter";
+import { Action, action } from "./action";
 import { FileItem, fileRecordCompare } from "./fileitem";
-import { action, Action } from "./action";
+import { Rules } from "./filter";
+import { Path, endsWithPathSeparator } from "./path";
+import { None, Option, Result, Some } from "./rust";
 
 export enum ConfigItem {
     RemoveIgnoredFiles = "removeIgnoredFiles",
@@ -70,6 +70,7 @@ class FileBrowser {
         this.current.onDidAccept(this.onDidAccept.bind(this));
         this.current.onDidChangeValue(this.onDidChangeValue.bind(this));
         this.current.onDidTriggerButton(this.onDidTriggerButton.bind(this));
+        this.current.onDidTriggerItemButton(this.onDidTriggerItemButton.bind(this));
         this.update().then(() => {
             this.current.placeholder = "Type a file name here to search or open a new file";
             this.current.busy = false;
@@ -188,6 +189,10 @@ class FileBrowser {
         }
     }
 
+    onDidTriggerItemButton(button: vscode.QuickPickItemButtonEvent<FileItem>) {
+        this.openFile(this.path.append(button.item.name).uri, ViewColumn.Beside);
+    }
+
     onDidTriggerButton(button: QuickInputButton) {
         if (button === this.stepInButton) {
             this.stepIn();
@@ -234,6 +239,14 @@ class FileBrowser {
             this.file = this.path.pop();
             await this.update();
         }
+    }
+
+    async openActiveFileHorizontalSplit() {
+        this.activeItem().ifSome(item => {
+            if(item.fileType === FileType.File) {
+                this.openFile(this.path.append(item.name).uri, ViewColumn.Beside);
+            }
+        });
     }
 
     async actions() {
@@ -482,6 +495,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("file-browser.tabPrev", () =>
             active.ifSome((active) => active.tabCompletion(false))
+        )
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("file-browser.openFileHorizontalSplit", () =>
+            active.ifSome((active) => active.openActiveFileHorizontalSplit())
         )
     );
 }
