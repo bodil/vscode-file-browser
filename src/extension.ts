@@ -92,6 +92,20 @@ class FileBrowser {
         this.current.show();
     }
 
+    async getStat(uri: Uri): Promise<vscode.FileStat | null> {
+        try {
+            if (uri.scheme === "file") {
+                return await vscode.workspace.fs.stat(uri);
+            } else {
+                const newUri = uri.with({ scheme: "file", fragment: '' });
+                this.path = new Path(newUri);
+                return await vscode.workspace.fs.stat(newUri);
+            }
+        } catch (err) {
+            return null;
+        }
+    }
+
     async update() {
         // FIXME: temporary and UGLY fix of https://github.com/bodil/vscode-file-browser/issues/35.
         // Brought in from here https://github.com/atariq11700/vscode-file-browser/commit/a2525d01f262f17dac2c478e56640c9ce1f65713.
@@ -101,7 +115,7 @@ class FileBrowser {
         this.current.title = this.path.fsPath;
         this.current.value = "";
 
-        const stat = (await Result.try(vscode.workspace.fs.stat(this.path.uri))).unwrap();
+        const stat = await this.getStat(this.path.uri);
         if (stat && this.inActions && (stat.type & FileType.File) === FileType.File) {
             this.items = [
                 action("$(file) Open this file", Action.OpenFile),
@@ -306,9 +320,16 @@ class FileBrowser {
 
     openFile(uri: Uri, column: ViewColumn = ViewColumn.Active) {
         this.dispose();
-        vscode.workspace
+        const extension = OSPath.extname(uri.fsPath).slice(1);
+        if (extension === "ipynb") {
+            vscode.workspace
+            .openNotebookDocument(uri)
+            .then((doc) => vscode.window.showNotebookDocument(doc, {viewColumn: column}));
+        } else {
+            vscode.workspace
             .openTextDocument(uri)
             .then((doc) => vscode.window.showTextDocument(doc, column));
+        }
     }
 
     async rename() {
