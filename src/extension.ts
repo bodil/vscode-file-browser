@@ -320,9 +320,16 @@ class FileBrowser {
 
     openFile(uri: Uri, column: ViewColumn = ViewColumn.Active) {
         this.dispose();
-        vscode.workspace
+        const extension = OSPath.extname(uri.fsPath).slice(1);
+        if (extension === "ipynb") {
+            vscode.workspace
+            .openNotebookDocument(uri)
+            .then((doc) => vscode.window.showNotebookDocument(doc, {viewColumn: column}));
+        } else {
+            vscode.workspace
             .openTextDocument(uri)
             .then((doc) => vscode.window.showTextDocument(doc, column));
+        }
     }
 
     async rename() {
