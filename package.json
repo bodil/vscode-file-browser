@@ -1,9 +1,9 @@
 {
-    "name": "file-browser",
-    "publisher": "bodil",
+    "name": "vscode-file-browser",
+    "publisher": "alejlatorre",
     "displayName": "File Browser",
     "description": "A nicer alternative to the file open dialog.",
-    "version": "0.2.11",
+    "version": "0.2.12",
     "license": "LGPL-3.0+",
     "author": {
         "name": "Bodil Stokke",
@@ -11,7 +11,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/bodil/vscode-file-browser"
+        "url": "https://github.com/alejlatorre/vscode-file-browser"
     },
     "keywords": [
         "emacs",
@@ -19,7 +19,7 @@
     ],
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.73.1"
+        "vscode": "1.73.1"
     },
     "categories": [
         "Other"
