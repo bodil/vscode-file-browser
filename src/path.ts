@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Uri, WorkspaceFolder, FileStat, FileType, FileSystemError } from "vscode";
 import * as OSPath from "path";
-import { Option, None, Some, Result, Err, Ok } from "./rust";
+import { Option, None, Some, Result, Err, Ok } from "@bodil/opt";
 
 export class Path {
     private pathUri: Uri;
@@ -100,7 +100,7 @@ export class Path {
     }
 
     getWorkspaceFolder(): Option<WorkspaceFolder> {
-        return new Option(vscode.workspace.getWorkspaceFolder(this.pathUri));
+        return Option.from(vscode.workspace.getWorkspaceFolder(this.pathUri));
     }
 
     relativeTo(other: Uri): Option<string> {
@@ -112,7 +112,7 @@ export class Path {
     }
 
     async stat(): Promise<Result<FileStat, Error>> {
-        return Result.try(vscode.workspace.fs.stat(this.pathUri));
+        return Result.await(vscode.workspace.fs.stat(this.pathUri));
     }
 
     async isDir(): Promise<boolean> {
@@ -167,7 +167,7 @@ export async function lookUpwards(
     }
     while (true) {
         for (const file of files) {
-            let filePath = path.append(file);
+            const filePath = path.append(file);
             if (await filePath.isFile()) {
                 return Ok(filePath.uri);
             }

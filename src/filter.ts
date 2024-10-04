@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { None, Option, Result } from "./rust";
 import { Uri } from "vscode";
 import { lookUpwards, Path } from "./path";
 import ignore from "ignore";
@@ -49,7 +48,7 @@ export class Rules {
             let path = base
                 .append(item.name)
                 .relativeTo(this.path.uri)
-                .unwrapOrElse(() => {
+                .getOrElse(() => {
                     throw new Error(
                         "Tried to apply ignore rules to a path that wasn't relative to the rule path!"
                     );

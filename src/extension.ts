@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import { Uri, QuickPickItem, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
+import { Uri, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
 import * as OS from "os";
 import * as OSPath from "path";
 
-import { Result, None, Option, Some } from "./rust";
+import { Result, None, Option, Some } from "@bodil/opt";
 import { Path, endsWithPathSeparator } from "./path";
 import { Rules } from "./filter";
 import { FileItem, fileRecordCompare } from "./fileitem";
@@ -101,7 +101,7 @@ class FileBrowser {
         this.current.title = this.path.fsPath;
         this.current.value = "";
 
-        const stat = (await Result.try(vscode.workspace.fs.stat(this.path.uri))).unwrap();
+        const stat = (await Result.await(vscode.workspace.fs.stat(this.path.uri))).unwrap();
         if (stat && this.inActions && (stat.type & FileType.File) === FileType.File) {
             this.items = [
                 action("$(file) Open this file", Action.OpenFile),
@@ -138,7 +138,7 @@ class FileBrowser {
             }
             this.items = items;
             this.current.items = items;
-            this.current.activeItems = items.filter((item) => this.file.contains(item.name));
+            this.current.activeItems = items.filter((item) => this.file.value === item.name);
         } else {
             this.items = [action("$(new-folder) Create this folder", Action.NewFolder)];
             this.current.items = this.items;
@@ -199,7 +199,7 @@ class FileBrowser {
     }
 
     activeItem(): Option<FileItem> {
-        return new Option(this.current.activeItems[0]);
+        return Option.from(this.current.activeItems[0]);
     }
 
     async stepIntoFolder(folder: Path) {
@@ -315,14 +315,14 @@ class FileBrowser {
         const uri = this.path.uri;
         const stat = await vscode.workspace.fs.stat(uri);
         const isDir = (stat.type & FileType.Directory) === FileType.Directory;
-        const fileName = this.path.pop().unwrapOrElse(() => {
+        const fileName = this.path.pop().getOrElse(() => {
             throw new Error("Can't rename an empty file name!");
         });
         const fileType = isDir ? "folder" : "file";
         const workspaceFolder = this.path.getWorkspaceFolder().map((wsf) => wsf.uri);
         const relPath = workspaceFolder
-            .andThen((workspaceFolder) => new Path(uri).relativeTo(workspaceFolder))
-            .unwrapOr(fileName);
+            .chain((workspaceFolder) => new Path(uri).relativeTo(workspaceFolder))
+            .getOr(fileName);
         const extension = OSPath.extname(relPath);
         const startSelection = relPath.length - fileName.length;
         const endSelection = startSelection + (fileName.length - extension.length);
@@ -337,12 +337,10 @@ class FileBrowser {
                 (workspaceFolder) => Uri.joinPath(workspaceFolder, result),
                 () => Uri.joinPath(this.path.uri, result)
             );
-            if ((await Result.try(vscode.workspace.fs.rename(uri, newUri))).isOk()) {
+            if ((await Result.await(vscode.workspace.fs.rename(uri, newUri))).isOk()) {
                 this.file = Some(OSPath.basename(result));
             } else {
-                vscode.window.showErrorMessage(
-                    `Failed to rename ${fileType} "${fileName}"`
-                );
+                vscode.window.showErrorMessage(`Failed to rename ${fileType} "${fileName}"`);
             }
         }
     }
@@ -391,14 +389,14 @@ class FileBrowser {
                 const uri = this.path.uri;
                 const stat = await vscode.workspace.fs.stat(uri);
                 const isDir = (stat.type & FileType.Directory) === FileType.Directory;
-                const fileName = this.path.pop().unwrapOrElse(() => {
+                const fileName = this.path.pop().getOrElse(() => {
                     throw new Error("Can't delete an empty file name!");
                 });
                 const fileType = isDir ? "folder" : "file";
                 const goAhead = `$(trash) Delete the ${fileType} "${fileName}"`;
                 const result = await vscode.window.showQuickPick(["$(close) Cancel", goAhead], {});
                 if (result === goAhead) {
-                    const delOp = await Result.try(
+                    const delOp = await Result.await(
                         vscode.workspace.fs.delete(uri, { recursive: isDir })
                     );
                     if (delOp.isErr()) {
@@ -433,7 +431,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("file-browser.open", () => {
             const document = vscode.window.activeTextEditor?.document;
-            let workspaceFolder =
+            const workspaceFolder =
                 vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
             let path = new Path(workspaceFolder?.uri || Uri.file(OS.homedir()));
             let file: Option<string> = None;
@@ -447,15 +445,19 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand("file-browser.rename", () =>
-            active.orElse(() => {
-                const document = vscode.window.activeTextEditor?.document;
-                let workspaceFolder =
-                    vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
-                let path = new Path(document?.uri || workspaceFolder?.uri || Uri.file(OS.homedir()));
-                active = Some(new FileBrowser(path, None));
-                setContext(true);
-                return active;
-            }).ifSome((active) => active.rename())
+            active
+                .chainNone(() => {
+                    const document = vscode.window.activeTextEditor?.document;
+                    const workspaceFolder =
+                        vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
+                    const path = new Path(
+                        document?.uri || workspaceFolder?.uri || Uri.file(OS.homedir())
+                    );
+                    active = Some(new FileBrowser(path, None));
+                    setContext(true);
+                    return active;
+                })
+                .ifSome((active) => active.rename())
         )
     );
 

@@ -1,4 +1,3 @@
-import * as vscode from "vscode";
 import { QuickPickItem, FileType } from "vscode";
 import { Action } from "./action";
 import { config, ConfigItem } from "./extension";
@@ -26,6 +25,7 @@ export class FileItem implements QuickPickItem {
                 break;
             case FileType.File | FileType.SymbolicLink:
                 this.label = `$(file-symlink-file) ${name}`;
+                break;
             default:
                 this.label = `$(file) ${name}`;
                 break;
