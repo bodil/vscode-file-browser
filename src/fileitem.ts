@@ -55,5 +55,6 @@ export function fileRecordCompare(left: [string, FileType], right: [string, File
     if (rightDir && !leftDir) {
         return 1;
     }
-    return leftName > rightName ? 1 : leftName === rightName ? 0 : -1;
+    const order = leftName.localeCompare(rightName, undefined, { numeric: true });
+    return order < 0 ? -1 : order > 0 ? 1 : 0;
 }
