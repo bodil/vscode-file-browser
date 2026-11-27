@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Uri, FileType, QuickInputButton, ThemeIcon, ViewColumn } from "vscode";
-import * as OS from "os";
-import * as OSPath from "path";
+import * as OS from "node:os";
+import * as OSPath from "node:path";
 
 import { Result, None, Option, Some } from "@bodil/opt";
 import { Path, endsWithPathSeparator } from "./path";
@@ -40,6 +40,7 @@ class FileBrowser {
     pathHistory: { [path: string]: Option<string> };
     inActions: boolean = false;
     keepAlive: boolean = false;
+    updating: boolean = false;
     autoCompletion?: AutoCompletion;
 
     actionsButton: QuickInputButton = {
@@ -96,6 +97,7 @@ class FileBrowser {
         // FIXME: temporary and UGLY fix of https://github.com/bodil/vscode-file-browser/issues/35.
         // Brought in from here https://github.com/atariq11700/vscode-file-browser/commit/a2525d01f262f17dac2c478e56640c9ce1f65713.
         // this.current.enabled = false;
+        this.updating = true;
         this.current.show();
         this.current.busy = true;
         this.current.title = this.path.fsPath;
@@ -144,10 +146,12 @@ class FileBrowser {
             this.current.items = this.items;
         }
         this.current.enabled = true;
+        this.current.busy = false;
+        this.updating = false;
     }
 
     onDidChangeValue(value: string, isAutoComplete = false) {
-        if (this.inActions) {
+        if (this.inActions || this.updating) {
             return;
         }
 
